@@ -43,6 +43,12 @@ jobs:
           touch _site/.nojekyll
           cp -r daily-paragraph-journal/dist _site/daily-paragraph-journal
           cp -r workout-tracker/dist _site/workout-tracker
+          echo "=== Deployment folder structure ==="
+          ls -la _site/
+          echo "=== Journal app files ==="
+          ls -la _site/daily-paragraph-journal/
+          echo "=== Workout tracker files ==="
+          ls -la _site/workout-tracker/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
