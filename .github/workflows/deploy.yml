@@ -42,7 +42,6 @@ jobs:
           cp index.html _site/
           cp -r daily-paragraph-journal/dist _site/daily-paragraph-journal
           cp -r workout-tracker/dist _site/workout-tracker
-          cp -r spelling-app _site/spelling-app
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
