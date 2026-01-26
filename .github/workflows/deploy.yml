@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Daily Paragraph Journal
+        run: |
+          cd daily-paragraph-journal
+          npm ci
+          npm run build
+          cd ..
+
+      - name: Build Workout Tracker
+        run: |
+          cd workout-tracker
+          npm ci
+          npm run build
+          cd ..
+
+      - name: Prepare deployment folder
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r daily-paragraph-journal/dist _site/daily-paragraph-journal
+          cp -r workout-tracker/dist _site/workout-tracker
+          cp -r spelling-app _site/spelling-app
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
