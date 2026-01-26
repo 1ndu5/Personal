@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm create:*)",
+      "Bash(timeout:*)",
+      "Bash(npm run build:*)",
+      "Bash(exit 0)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(node -e:*)",
+      "Bash(node create-sample-data.mjs:*)",
+      "Bash(node create-sample-text.mjs:*)",
+      "Bash(git init:*)",
+      "Bash(gh repo create:*)",
+      "Bash(echo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
