@@ -2,12 +2,12 @@
 **/node_modules/
 
 # Build outputs
-**/dist/
 **/dist-ssr/
 **/build/
 **/.next/
 **/.nuxt/
 **/.vuepress/dist/
+# Note: We're committing dist/ for GitHub Pages deployment
 
 # Environment files
 **/.env
