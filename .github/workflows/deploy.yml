@@ -41,8 +41,10 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           touch _site/.nojekyll
-          cp -r daily-paragraph-journal/dist _site/daily-paragraph-journal
-          cp -r workout-tracker/dist _site/workout-tracker
+          mkdir -p _site/daily-paragraph-journal
+          cp -r daily-paragraph-journal/dist/* _site/daily-paragraph-journal/
+          mkdir -p _site/workout-tracker
+          cp -r workout-tracker/dist/* _site/workout-tracker/
           echo "=== Deployment folder structure ==="
           ls -la _site/
           echo "=== Journal app files ==="
