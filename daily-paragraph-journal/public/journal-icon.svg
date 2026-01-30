@@ -1,31 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <!-- Background -->
-  <rect width="512" height="512" fill="#8b5a3c"/>
+  <rect width="512" height="512" fill="#8b5a3c" rx="64"/>
 
-  <!-- Book/Journal -->
-  <g transform="translate(100, 80)">
-    <!-- Book cover -->
-    <rect x="0" y="0" width="312" height="352" fill="#6b4423" rx="8"/>
+  <!-- Book/Journal - larger and centered -->
+  <g transform="translate(80, 64)">
+    <!-- Book cover - darker brown -->
+    <rect x="0" y="0" width="352" height="384" fill="#5a3419" rx="12"/>
 
-    <!-- Book spine shadow -->
-    <rect x="0" y="0" width="40" height="352" fill="#5a3419" rx="8"/>
+    <!-- Book spine highlight -->
+    <rect x="8" y="8" width="24" height="368" fill="#6b4423" rx="8"/>
 
-    <!-- Pages -->
-    <rect x="50" y="20" width="242" height="312" fill="#faf8f5" rx="4"/>
+    <!-- Pages visible on the side -->
+    <g>
+      <rect x="332" y="8" width="12" height="368" fill="#faf8f5"/>
+      <rect x="328" y="12" width="12" height="368" fill="#f5ebe0"/>
+      <rect x="324" y="16" width="12" height="368" fill="#ede0d4"/>
+    </g>
 
-    <!-- Horizontal lines (ruled paper effect) -->
-    <line x1="70" y1="60" x2="272" y2="60" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="90" x2="272" y2="90" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="120" x2="272" y2="120" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="150" x2="272" y2="150" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="180" x2="272" y2="180" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="210" x2="272" y2="210" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="240" x2="272" y2="240" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="270" x2="272" y2="270" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
-    <line x1="70" y1="300" x2="272" y2="300" stroke="#ddbea9" stroke-width="2" opacity="0.6"/>
+    <!-- Front cover with embossed detail -->
+    <rect x="48" y="32" width="256" height="320" fill="none" stroke="#8b5a3c" stroke-width="4" rx="4"/>
 
-    <!-- Bookmark ribbon -->
-    <rect x="140" y="0" width="32" height="120" fill="#b08968"/>
-    <path d="M 140 120 L 156 105 L 172 120 Z" fill="#b08968"/>
+    <!-- Simple ruled lines on cover (like a composition book) -->
+    <line x1="80" y1="140" x2="272" y2="140" stroke="#8b5a3c" stroke-width="3"/>
+    <line x1="80" y1="180" x2="272" y2="180" stroke="#8b5a3c" stroke-width="3"/>
+    <line x1="80" y1="220" x2="272" y2="220" stroke="#8b5a3c" stroke-width="3"/>
+    <line x1="80" y1="260" x2="272" y2="260" stroke="#8b5a3c" stroke-width="3"/>
+
+    <!-- Bookmark ribbon - more prominent -->
+    <rect x="160" y="0" width="32" height="140" fill="#b08968"/>
+    <path d="M 160 140 L 176 122 L 192 140 Z" fill="#b08968"/>
   </g>
 </svg>
