@@ -196,7 +196,7 @@ const WeightsForm = ({ date, workout, onClose }) => {
                         type="number"
                         value={set.weight}
                         onChange={(e) => updateSet(exIndex, setIndex, 'weight', e.target.value)}
-                        placeholder="lbs"
+                        placeholder="kg"
                         className="w-20 text-center"
                       />
                       <span className="text-slate-400">x</span>
