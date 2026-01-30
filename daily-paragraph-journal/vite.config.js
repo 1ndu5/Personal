@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['journal-icon.svg'],
+      includeAssets: ['journal-icon.svg', 'journal-icon-192x192.png', 'journal-icon-512x512.png'],
       manifest: {
         name: 'Daily Paragraph Journal',
         short_name: 'Journal',
@@ -19,10 +19,28 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
+            src: 'journal-icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'journal-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'journal-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
             src: 'journal-icon.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'any'
           }
         ]
       },
