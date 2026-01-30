@@ -7,6 +7,8 @@ export function Settings({ onImportComplete }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [showStrategyDialog, setShowStrategyDialog] = useState(false);
+  const [pendingFileContent, setPendingFileContent] = useState(null);
   const fileInputRef = useRef(null);
   const { currentTheme, changeTheme } = useTheme();
 
@@ -27,12 +29,32 @@ export function Settings({ onImportComplete }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    try {
+      const content = await readFileContent(file);
+      setPendingFileContent(content);
+      setShowStrategyDialog(true);
+    } catch (error) {
+      setImportResult({
+        total: 0,
+        imported: 0,
+        overwritten: 0,
+        errors: [error.message],
+      });
+    } finally {
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleStrategySelect = async (strategy) => {
+    setShowStrategyDialog(false);
     setIsImporting(true);
     setImportResult(null);
 
     try {
-      const content = await readFileContent(file);
-      const result = await importFromText(content);
+      const result = await importFromText(pendingFileContent, strategy);
       setImportResult(result);
 
       if (onImportComplete) {
@@ -42,15 +64,18 @@ export function Settings({ onImportComplete }) {
       setImportResult({
         total: 0,
         imported: 0,
+        overwritten: 0,
         errors: [error.message],
       });
     } finally {
       setIsImporting(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setPendingFileContent(null);
     }
+  };
+
+  const handleCancelStrategy = () => {
+    setShowStrategyDialog(false);
+    setPendingFileContent(null);
   };
 
   const closeImportResult = () => {
@@ -71,6 +96,49 @@ export function Settings({ onImportComplete }) {
       >
         ⚙
       </button>
+
+      {showStrategyDialog && (
+        <div className="settings-overlay" onClick={handleCancelStrategy}>
+          <div className="strategy-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="strategy-header">
+              <h3>Import Strategy</h3>
+              <button onClick={handleCancelStrategy} className="close-button">
+                ×
+              </button>
+            </div>
+
+            <p className="strategy-description">
+              How should we handle entries that already exist in your journal?
+            </p>
+
+            <div className="strategy-options">
+              <button
+                onClick={() => handleStrategySelect('keep-existing')}
+                className="strategy-option"
+              >
+                <strong>Keep Existing</strong>
+                <p>Skip imported entries if they already exist (safe, no data loss)</p>
+              </button>
+
+              <button
+                onClick={() => handleStrategySelect('prefer-imported')}
+                className="strategy-option"
+              >
+                <strong>Prefer Imported</strong>
+                <p>Overwrite existing entries with imported data</p>
+              </button>
+
+              <button
+                onClick={() => handleStrategySelect('overwrite-all')}
+                className="strategy-option destructive"
+              >
+                <strong>Overwrite All</strong>
+                <p>Replace all existing data with imported entries</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isOpen && (
         <div className="settings-overlay" onClick={closeSettings}>
@@ -122,6 +190,9 @@ export function Settings({ onImportComplete }) {
                     <div className="import-stats">
                       <p>Total lines: {importResult.total}</p>
                       <p className="success">Imported: {importResult.imported}</p>
+                      {importResult.overwritten > 0 && (
+                        <p className="info">Overwritten: {importResult.overwritten}</p>
+                      )}
                       {importResult.skipped > 0 && (
                         <p className="warning">Skipped: {importResult.skipped}</p>
                       )}

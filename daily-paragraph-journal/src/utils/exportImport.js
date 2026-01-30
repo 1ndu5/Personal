@@ -35,20 +35,26 @@ export async function exportToText() {
 }
 
 /**
- * Import entries from a text file
+ * Import entries from a text file with merge strategy
  * Expected format: YYYY-MM-DD: entry text
+ *
+ * @param {string} fileContent - Content of the import file
+ * @param {string} strategy - One of: 'overwrite-all', 'keep-existing', 'prefer-imported'
  */
-export async function importFromText(fileContent) {
+export async function importFromText(fileContent, strategy = 'keep-existing') {
   const results = {
     total: 0,
     imported: 0,
     skipped: 0,
+    overwritten: 0,
     errors: [],
   };
 
   try {
     const lines = fileContent.split('\n').filter(line => line.trim());
+    const parsedEntries = [];
 
+    // First pass: parse and validate all entries
     for (const line of lines) {
       results.total++;
 
@@ -80,15 +86,43 @@ export async function importFromText(fileContent) {
         continue;
       }
 
+      parsedEntries.push({ journalDay, text });
+    }
+
+    // Second pass: apply merge strategy
+    for (const { journalDay, text } of parsedEntries) {
       try {
-        await addEntry(journalDay, text);
-        results.imported++;
+        const existingEntry = await getAllEntries().then(entries =>
+          entries.find(e => e.journalDay === journalDay)
+        );
+
+        if (strategy === 'overwrite-all') {
+          // Always import
+          await addEntry(journalDay, text);
+          if (existingEntry) {
+            results.overwritten++;
+          }
+          results.imported++;
+        } else if (strategy === 'keep-existing') {
+          // Only import if no existing entry
+          if (!existingEntry) {
+            await addEntry(journalDay, text);
+            results.imported++;
+          } else {
+            results.skipped++;
+          }
+        } else if (strategy === 'prefer-imported') {
+          // Import and overwrite if exists
+          await addEntry(journalDay, text);
+          if (existingEntry) {
+            results.overwritten++;
+          }
+          results.imported++;
+        }
       } catch (error) {
         results.errors.push(`Failed to import ${journalDay}: ${error.message}`);
       }
     }
-
-    results.skipped = results.total - results.imported - results.errors.length;
 
     return results;
   } catch (error) {

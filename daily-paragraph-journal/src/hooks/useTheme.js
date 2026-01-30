@@ -8,7 +8,7 @@ export const THEMES = [
 ];
 
 const STORAGE_KEY = 'journal-theme';
-const DEFAULT_THEME = 'vintage-sepia';
+const DEFAULT_THEME = 'midnight-scholar';
 
 export function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {

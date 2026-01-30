@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 100;
+  z-index: 110;
 }
 
 .settings-button:hover {
@@ -242,6 +242,11 @@
   font-weight: bold;
 }
 
+.import-stats .info {
+  color: #3a6ea5;
+  font-weight: bold;
+}
+
 .import-stats .warning {
   color: #a84b32;
 }
@@ -345,10 +350,106 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+/* Strategy Dialog Styles */
+
+.strategy-dialog {
+  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
+  border: 3px solid var(--color-border-medium);
+  border-radius: 12px;
+  padding: 0;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease;
+}
+
+.strategy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--color-border-medium);
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark));
+}
+
+.strategy-header h3 {
+  margin: 0;
+  font-family: 'Georgia', 'Palatino', serif;
+  font-size: 1.5rem;
+  color: var(--color-bg-light);
+  font-weight: normal;
+}
+
+.strategy-description {
+  padding: 1.5rem;
+  margin: 0;
+  font-family: 'Georgia', 'Palatino', serif;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.strategy-options {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.strategy-option {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--color-border-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.strategy-option:hover {
+  border-color: var(--color-primary);
+  transform: translateX(4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.strategy-option strong {
+  display: block;
+  font-family: 'Georgia', 'Palatino', serif;
+  font-size: 1.0625rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.25rem;
+}
+
+.strategy-option p {
+  margin: 0;
+  font-family: 'Georgia', 'Palatino', serif;
+  font-size: 0.875rem;
+  color: var(--color-text-medium);
+  line-height: 1.5;
+}
+
+.strategy-option.destructive {
+  border-color: #a84b32;
+}
+
+.strategy-option.destructive:hover {
+  border-color: #a84b32;
+  background: rgba(168, 75, 50, 0.05);
+}
+
+.strategy-option.destructive strong {
+  color: #a84b32;
+}
+
 @media (max-width: 768px) {
   .settings-modal {
     width: 95%;
     max-height: 90vh;
+  }
+
+  .strategy-dialog {
+    width: 95%;
   }
 
   .settings-buttons {
