@@ -22,13 +22,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build Daily Paragraph Journal
-        run: |
-          cd daily-paragraph-journal
-          npm ci
-          npm run build
-          cd ..
-
       - name: Build Workout Tracker
         run: |
           cd workout-tracker
@@ -41,14 +34,14 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           touch _site/.nojekyll
-          mkdir -p _site/daily-paragraph-journal
-          cp -r daily-paragraph-journal/dist/* _site/daily-paragraph-journal/
+          mkdir -p _site/daily-memory-journal
+          cp -r daily-memory-journal/* _site/daily-memory-journal/
           mkdir -p _site/workout-tracker
           cp -r workout-tracker/dist/* _site/workout-tracker/
           echo "=== Deployment folder structure ==="
           ls -la _site/
           echo "=== Journal app files ==="
-          ls -la _site/daily-paragraph-journal/
+          ls -la _site/daily-memory-journal/
           echo "=== Workout tracker files ==="
           ls -la _site/workout-tracker/
 
