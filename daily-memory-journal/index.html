@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="journal-icon.svg">
+  <link rel="apple-touch-icon" href="journal-icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Memory Journal">
+  <meta name="theme-color" content="#8b7355">
+  <title>Daily Memory Journal</title>
+  <style>
+    /* CSS Variables for Themes */
+    :root {
+      --color-primary: #8b7355;
+      --color-primary-dark: #5d4e37;
+      --color-bg-light: #f4f1e8;
+      --color-bg-medium: #e8dcc4;
+      --color-bg-gradient-start: #e8dcc4;
+      --color-bg-gradient-end: #d4c4a8;
+      --color-text-dark: #2b2416;
+      --color-text-medium: #6b5d47;
+      --color-border-light: #c9b99a;
+      --color-border-medium: #a89968;
+      --color-accent: #9d8b6c;
+      --color-overlay: rgba(43, 36, 22, 0.7);
+    }
+
+    /* Vintage Sepia Theme */
+    [data-theme="vintage-sepia"] {
+      --color-primary: #8b7355;
+      --color-primary-dark: #5d4e37;
+      --color-bg-light: #f4f1e8;
+      --color-bg-medium: #e8dcc4;
+      --color-bg-gradient-start: #e8dcc4;
+      --color-bg-gradient-end: #d4c4a8;
+      --color-text-dark: #2b2416;
+      --color-text-medium: #6b5d47;
+      --color-border-light: #c9b99a;
+      --color-border-medium: #a89968;
+      --color-accent: #9d8b6c;
+      --color-overlay: rgba(43, 36, 22, 0.7);
+    }
+
+    /* Autumn Leaves Theme */
+    [data-theme="autumn-leaves"] {
+      --color-primary: #c55a28;
+      --color-primary-dark: #994422;
+      --color-bg-light: #fff5eb;
+      --color-bg-medium: #ffecd1;
+      --color-bg-gradient-start: #ffecd1;
+      --color-bg-gradient-end: #ffd9a8;
+      --color-text-dark: #3d2817;
+      --color-text-medium: #c55a28;
+      --color-border-light: #f4c98f;
+      --color-border-medium: #d97642;
+      --color-accent: #e89352;
+      --color-overlay: rgba(61, 40, 23, 0.7);
+    }
+
+    /* Midnight Scholar Theme */
+    [data-theme="midnight-scholar"] {
+      --color-primary: #2c3e50;
+      --color-primary-dark: #1a252f;
+      --color-bg-light: #ecf0f1;
+      --color-bg-medium: #dfe6e9;
+      --color-bg-gradient-start: #dfe6e9;
+      --color-bg-gradient-end: #b2bec3;
+      --color-text-dark: #0c1419;
+      --color-text-medium: #34495e;
+      --color-border-light: #95a5a6;
+      --color-border-medium: #7f8c8d;
+      --color-accent: #546e7a;
+      --color-overlay: rgba(12, 20, 25, 0.75);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', 'Palatino', serif;
+      background: linear-gradient(to bottom, var(--color-bg-gradient-start), var(--color-bg-gradient-end));
+      min-height: 100vh;
+      color: var(--color-text-dark);
+    }
+
+    .app-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      height: 4.5rem;
+      border-bottom: 2px solid var(--color-border-medium);
+      background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark));
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-bg-light);
+    }
+
+    .app-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .calendar-button,
+    .settings-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+      border: 2px solid var(--color-primary-dark);
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 110;
+      transition: all 0.3s ease;
+    }
+
+    .calendar-button {
+      right: 4.5rem;
+    }
+
+    .settings-button {
+      right: 1rem;
+    }
+
+    .calendar-button:hover,
+    .settings-button:hover {
+      background: var(--color-primary-dark);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .main-content {
+      padding: 2rem 1rem;
+    }
+
+    .entry-form-container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid var(--color-border-medium);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+    }
+
+    .date-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .date-header h2 {
+      color: var(--color-primary);
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .date-context {
+      color: var(--color-text-medium);
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 1rem;
+      border: 2px solid var(--color-border-light);
+      border-radius: 8px;
+      font-family: 'Indie Flower', 'Comic Sans MS', cursive;
+      font-size: 1.1rem;
+      resize: vertical;
+      background: var(--color-bg-light);
+      color: var(--color-text-dark);
+    }
+
+    .char-counter {
+      text-align: right;
+      margin-top: 0.5rem;
+      color: var(--color-text-medium);
+      font-size: 0.9rem;
+    }
+
+    .char-counter.warning {
+      color: #d97706;
+      font-weight: bold;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .memories-container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid var(--color-border-medium);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .memories-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--color-primary);
+    }
+
+    .memory-entry {
+      background: var(--color-bg-medium);
+      border-left: 4px solid var(--color-accent);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    .memory-year {
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .memory-text {
+      font-family: 'Indie Flower', 'Comic Sans MS', cursive;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .no-memories {
+      text-align: center;
+      color: var(--color-text-medium);
+      font-style: italic;
+      padding: 2rem;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-overlay);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
+      border: 3px solid var(--color-border-medium);
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 2px solid var(--color-border-medium);
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: var(--color-bg-light);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .settings-section {
+      margin-bottom: 2rem;
+    }
+
+    .settings-section h3 {
+      color: var(--color-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .settings-description {
+      color: var(--color-text-medium);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .settings-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .export-button,
+    .import-button {
+      flex: 1;
+      padding: 0.75rem;
+      border: 2px solid var(--color-primary);
+      border-radius: 8px;
+      background: var(--color-bg-light);
+      color: var(--color-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .export-button:hover,
+    .import-button:hover {
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .theme-button {
+      padding: 0.75rem;
+      background: var(--color-bg-light);
+      border: 2px solid var(--color-primary);
+      border-radius: 8px;
+      color: var(--color-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .theme-button:hover {
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+      transform: translateY(-2px);
+    }
+
+    .theme-button.active {
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+      border-width: 3px;
+    }
+
+    .strategy-option {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid var(--color-border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      width: 100%;
+    }
+
+    .strategy-option:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .strategy-option.destructive {
+      border-color: #c55a28;
+    }
+
+    .strategy-option.destructive:hover {
+      border-color: #994422;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Calendar Styles */
+    .calendar-month-year {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: var(--color-primary);
+    }
+
+    .calendar-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .nav-button,
+    .today-button {
+      padding: 0.5rem 1rem;
+      background: var(--color-primary);
+      color: var(--color-bg-light);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-button:hover,
+    .today-button:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 2px solid var(--color-border-light);
+      background: var(--color-bg-light);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-bg-medium);
+    }
+
+    .calendar-day.today-highlight {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      font-weight: bold;
+      color: var(--color-bg-light);
+    }
+
+    .calendar-day.has-entry::after {
+      content: '●';
+      position: absolute;
+      bottom: 2px;
+      font-size: 0.6rem;
+      color: var(--color-primary);
+    }
+
+    .calendar-day.today-highlight.has-entry::after {
+      color: var(--color-bg-light);
+    }
+
+    .calendar-day:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <button class="calendar-button" aria-label="Calendar" onclick="openCalendar()">📅</button>
+      <button class="settings-button" aria-label="Settings" onclick="openSettings()">⚙</button>
+    </header>
+
+    <main class="main-content">
+      <!-- Entry Form -->
+      <div id="entry-form-container" class="entry-form-container">
+        <div class="date-header">
+          <h2 id="journal-date"></h2>
+          <p class="date-context" id="date-context"></p>
+        </div>
+        <form id="entry-form" onsubmit="submitEntry(event)">
+          <textarea
+            id="entry-text"
+            placeholder="What made today memorable?"
+            maxlength="300"
+            oninput="updateCharCounter()"
+          ></textarea>
+          <div class="char-counter" id="char-counter">0 / 300</div>
+          <button type="submit" class="submit-btn" id="submit-btn">Save Entry</button>
+        </form>
+      </div>
+
+      <!-- Memories View -->
+      <div id="memories-container" class="memories-container hidden">
+        <div class="memories-header">
+          <h2>Memories from this day</h2>
+        </div>
+        <div id="memories-list"></div>
+        <button class="submit-btn" id="return-today-btn" onclick="returnToToday()">Return to Today</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-overlay hidden" onclick="closeSettings()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="close-button" onclick="closeSettings()">×</button>
+      </div>
+      <div class="modal-body">
+        <section class="settings-section">
+          <h3>Backup & Restore</h3>
+          <p class="settings-description">Export creates a text file backup of all your entries. Import adds entries from a text file.</p>
+          <div class="settings-buttons">
+            <button class="export-button" onclick="exportJournal()">Export Journal</button>
+            <button class="import-button" onclick="document.getElementById('import-file').click()">Import Journal</button>
+          </div>
+          <input type="file" id="import-file" accept=".txt" style="display: none;" onchange="importJournal(event)">
+        </section>
+
+        <section class="settings-section">
+          <h3>Theme</h3>
+          <p class="settings-description">Choose your journal's visual style</p>
+          <div class="theme-grid" id="theme-grid"></div>
+        </section>
+
+        <section class="settings-section">
+          <h3>About</h3>
+          <p class="settings-description">Daily Memory Journal - A personal journal for capturing daily memories.</p>
+          <p class="settings-description">Your journal is stored locally on this device. Use export to create backups.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Strategy Dialog -->
+  <div id="strategy-modal" class="modal-overlay hidden" onclick="closeStrategyDialog()">
+    <div class="modal-content" style="max-width: 450px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Import Strategy</h2>
+        <button class="close-button" onclick="closeStrategyDialog()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-description" style="margin-bottom: 1.5rem;">
+          How should we handle entries that already exist in your journal?
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <button class="strategy-option" onclick="executeImport('keep-existing')">
+            <strong>Keep Existing</strong>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--color-text-medium);">
+              Skip imported entries if they already exist (safe, no data loss)
+            </p>
+          </button>
+          <button class="strategy-option" onclick="executeImport('prefer-imported')">
+            <strong>Prefer Imported</strong>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--color-text-medium);">
+              Overwrite existing entries with imported data
+            </p>
+          </button>
+          <button class="strategy-option destructive" onclick="executeImport('overwrite-all')">
+            <strong>Overwrite All</strong>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--color-text-medium);">
+              Replace all existing data with imported entries
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Modal -->
+  <div id="calendar-modal" class="modal-overlay hidden" onclick="closeCalendar()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Calendar</h2>
+        <button class="close-button" onclick="closeCalendar()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="calendar-navigation">
+          <button class="nav-button" onclick="changeMonth(-1)">←</button>
+          <h2 class="calendar-month-year" id="calendar-month-year"></h2>
+          <button class="nav-button" onclick="changeMonth(1)">→</button>
+        </div>
+        <button class="today-button" style="width: 100%; margin-bottom: 1rem;" onclick="goToToday()">Today</button>
+        <div class="calendar-days" id="calendar-days"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // DATABASE & STORAGE
+    // ============================================
+    let db;
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('JournalDB', 1);
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains('entries')) {
+            const objectStore = db.createObjectStore('entries', { keyPath: 'journalDay' });
+            objectStore.createIndex('month_day', ['month', 'day'], { unique: false });
+          }
+        };
+      });
+    }
+
+    async function addEntry(journalDay, text) {
+      const db = await openDatabase();
+      const date = new Date(journalDay);
+      const entry = {
+        journalDay,
+        text,
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        createdAt: Date.now()
+      };
+
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['entries'], 'readwrite');
+        const request = transaction.objectStore('entries').put(entry);
+        request.onsuccess = () => resolve(entry);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getEntry(journalDay) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['entries'], 'readonly');
+        const request = transaction.objectStore('entries').get(journalDay);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getAllEntries() {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['entries'], 'readonly');
+        const request = transaction.objectStore('entries').getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getEntriesForMonthDay(month, day) {
+      const db = await openDatabase();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['entries'], 'readonly');
+        const objectStore = transaction.objectStore('entries');
+        const index = objectStore.index('month_day');
+        const request = index.getAll([month, day]);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // ============================================
+    // DATE HELPERS
+    // ============================================
+    function getJournalDay(date = new Date()) {
+      const d = new Date(date);
+      if (d.getHours() < 12) {
+        d.setDate(d.getDate() - 1);
+      }
+      return formatDate(d);
+    }
+
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDateDisplay(dateStr) {
+      const date = new Date(dateStr + 'T12:00:00');
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    function getDateContext() {
+      const now = new Date();
+      if (now.getHours() < 12) {
+        return "You're writing about yesterday";
+      }
+      return "You're writing about today";
+    }
+
+    // ============================================
+    // THEME MANAGEMENT
+    // ============================================
+    const themes = [
+      { id: 'vintage-sepia', name: 'Vintage', category: 'theme' },
+      { id: 'autumn-leaves', name: 'Autumn Leaves', category: 'theme' },
+      { id: 'midnight-scholar', name: 'Midnight Scholar', category: 'theme' }
+    ];
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('journal-theme') || 'midnight-scholar';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      renderThemeButtons();
+    }
+
+    function changeTheme(themeId) {
+      document.documentElement.setAttribute('data-theme', themeId);
+      localStorage.setItem('journal-theme', themeId);
+      renderThemeButtons();
+    }
+
+    function renderThemeButtons() {
+      const currentTheme = localStorage.getItem('journal-theme') || 'midnight-scholar';
+      const grid = document.getElementById('theme-grid');
+      grid.innerHTML = themes.map(theme => `
+        <button
+          class="theme-button ${theme.id === currentTheme ? 'active' : ''}"
+          onclick="changeTheme('${theme.id}')"
+        >
+          ${theme.name}
+        </button>
+      `).join('');
+    }
+
+    // ============================================
+    // UI UPDATES
+    // ============================================
+    let currentJournalDay = getJournalDay();
+
+    function updateCharCounter() {
+      const textarea = document.getElementById('entry-text');
+      const counter = document.getElementById('char-counter');
+      const length = textarea.value.length;
+      counter.textContent = `${length} / 300`;
+      counter.className = 'char-counter' + (length > 250 ? ' warning' : '');
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = length === 0 || length > 300;
+    }
+
+    async function loadCurrentEntry() {
+      const entry = await getEntry(currentJournalDay);
+      const formContainer = document.getElementById('entry-form-container');
+      const memoriesContainer = document.getElementById('memories-container');
+
+      const todayJournalDay = getJournalDay();
+      const isEditable = currentJournalDay === todayJournalDay;
+
+      if (entry) {
+        if (isEditable) {
+          // Show editable form with existing entry
+          formContainer.innerHTML = `
+            <div class="date-header">
+              <h2 id="journal-date">${formatDateDisplay(currentJournalDay)}</h2>
+              <p class="date-context" id="date-context">${getDateContext()}</p>
+            </div>
+            <form id="entry-form" onsubmit="submitEntry(event)">
+              <textarea
+                id="entry-text"
+                placeholder="What made today memorable?"
+                maxlength="300"
+                oninput="updateCharCounter()"
+              >${entry.text}</textarea>
+              <div class="char-counter" id="char-counter">${entry.text.length} / 300</div>
+              <button type="submit" class="submit-btn" id="submit-btn">Update Entry</button>
+            </form>
+          `;
+          formContainer.classList.remove('hidden');
+          updateCharCounter();
+          await loadMemories();
+          memoriesContainer.classList.remove('hidden');
+        } else {
+          // Show read-only view for past entries
+          formContainer.innerHTML = `
+            <div class="date-header">
+              <h2>${formatDateDisplay(currentJournalDay)}</h2>
+              <p class="date-context">Entry from this day</p>
+            </div>
+            <div class="memory-entry">
+              <div class="memory-text">${entry.text}</div>
+            </div>
+          `;
+          formContainer.classList.remove('hidden');
+          await loadMemories();
+          memoriesContainer.classList.remove('hidden');
+        }
+      } else {
+        if (isEditable) {
+          // Show entry form for current journal day
+          formContainer.innerHTML = `
+            <div class="date-header">
+              <h2 id="journal-date">${formatDateDisplay(currentJournalDay)}</h2>
+              <p class="date-context" id="date-context">${getDateContext()}</p>
+            </div>
+            <form id="entry-form" onsubmit="submitEntry(event)">
+              <textarea
+                id="entry-text"
+                placeholder="What made today memorable?"
+                maxlength="300"
+                oninput="updateCharCounter()"
+              ></textarea>
+              <div class="char-counter" id="char-counter">0 / 300</div>
+              <button type="submit" class="submit-btn" id="submit-btn">Save Entry</button>
+            </form>
+          `;
+          formContainer.classList.remove('hidden');
+          updateCharCounter();
+          memoriesContainer.classList.add('hidden');
+        } else {
+          // No entry for this past day - show memories only
+          formContainer.innerHTML = `
+            <div class="date-header">
+              <h2>${formatDateDisplay(currentJournalDay)}</h2>
+              <p class="date-context">No entry for this day</p>
+            </div>
+          `;
+          formContainer.classList.remove('hidden');
+          await loadMemories();
+          memoriesContainer.classList.remove('hidden');
+        }
+      }
+    }
+
+    async function submitEntry(event) {
+      event.preventDefault();
+      const text = document.getElementById('entry-text').value.trim();
+
+      if (text && text.length <= 300) {
+        await addEntry(currentJournalDay, text);
+        await loadCurrentEntry();
+      }
+    }
+
+    async function loadMemories() {
+      const date = new Date(currentJournalDay + 'T12:00:00');
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const currentYear = date.getFullYear();
+
+      const memories = await getEntriesForMonthDay(month, day);
+      const otherYears = memories
+        .filter(m => m.year !== currentYear)
+        .sort((a, b) => b.year - a.year);
+
+      const list = document.getElementById('memories-list');
+
+      if (otherYears.length === 0) {
+        list.innerHTML = '<div class="no-memories">This is your first entry for this day!</div>';
+      } else {
+        list.innerHTML = otherYears.map(memory => `
+          <div class="memory-entry">
+            <div class="memory-year">${memory.year}</div>
+            <div class="memory-text">${memory.text}</div>
+          </div>
+        `).join('');
+      }
+
+      // Show/hide Return to Today button
+      const todayJournalDay = getJournalDay();
+      const isEditable = currentJournalDay === todayJournalDay;
+      const returnBtn = document.getElementById('return-today-btn');
+      if (returnBtn) {
+        returnBtn.style.display = isEditable ? 'none' : 'block';
+      }
+    }
+
+    function returnToToday() {
+      currentJournalDay = getJournalDay();
+      loadCurrentEntry();
+    }
+
+    // ============================================
+    // CALENDAR
+    // ============================================
+    let calendarDate = new Date();
+
+    function openCalendar() {
+      calendarDate = new Date();
+      renderCalendar();
+      document.getElementById('calendar-modal').classList.remove('hidden');
+    }
+
+    function closeCalendar() {
+      document.getElementById('calendar-modal').classList.add('hidden');
+    }
+
+    function changeMonth(direction) {
+      calendarDate.setMonth(calendarDate.getMonth() + direction);
+      renderCalendar();
+    }
+
+    function goToToday() {
+      calendarDate = new Date();
+      renderCalendar();
+    }
+
+    async function renderCalendar() {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+
+      document.getElementById('calendar-month-year').textContent =
+        calendarDate.toLocaleDateString('en-US', { month: 'long' });
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const allEntries = await getAllEntries();
+      const today = new Date();
+      const todayStr = formatDate(today);
+
+      const daysContainer = document.getElementById('calendar-days');
+      daysContainer.innerHTML = '';
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasEntry = allEntries.some(e => e.journalDay === dateStr);
+        const isToday = dateStr === todayStr;
+        const isFuture = new Date(dateStr) > today;
+
+        const button = document.createElement('button');
+        button.className = 'calendar-day';
+        if (isToday) button.classList.add('today-highlight');
+        if (hasEntry) button.classList.add('has-entry');
+        button.textContent = day;
+        button.disabled = isFuture;
+
+        if (!isFuture) {
+          button.onclick = () => selectDay(dateStr);
+        }
+
+        daysContainer.appendChild(button);
+      }
+    }
+
+    function selectDay(journalDay) {
+      currentJournalDay = journalDay;
+      closeCalendar();
+      loadCurrentEntry();
+    }
+
+    // ============================================
+    // SETTINGS
+    // ============================================
+    function openSettings() {
+      renderThemeButtons();
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettings() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    // ============================================
+    // EXPORT / IMPORT
+    // ============================================
+    let pendingImportData = null;
+
+    async function exportJournal() {
+      const entries = await getAllEntries();
+      entries.sort((a, b) => a.journalDay.localeCompare(b.journalDay));
+
+      const content = entries
+        .map(entry => `${entry.journalDay}: ${entry.text}`)
+        .join('\n');
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `journal-export-${formatDate(new Date())}.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      alert(`Successfully exported ${entries.length} entries!`);
+    }
+
+    async function importJournal(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const text = await file.text();
+      pendingImportData = text;
+
+      // Show strategy dialog
+      document.getElementById('strategy-modal').classList.remove('hidden');
+      closeSettings();
+
+      event.target.value = '';
+    }
+
+    function closeStrategyDialog() {
+      document.getElementById('strategy-modal').classList.add('hidden');
+      pendingImportData = null;
+    }
+
+    async function executeImport(strategy) {
+      if (!pendingImportData) return;
+
+      // Save the data before closing (closeStrategyDialog sets pendingImportData to null)
+      const importData = pendingImportData;
+
+      // Close the dialog immediately
+      closeStrategyDialog();
+
+      const lines = importData.split('\n').filter(line => line.trim());
+
+      let imported = 0;
+      let skipped = 0;
+      let overwritten = 0;
+
+      if (strategy === 'overwrite-all') {
+        // Clear all existing entries first
+        const allEntries = await getAllEntries();
+        const db = await openDatabase();
+        const transaction = db.transaction(['entries'], 'readwrite');
+        const objectStore = transaction.objectStore('entries');
+
+        for (const entry of allEntries) {
+          objectStore.delete(entry.journalDay);
+        }
+
+        await new Promise((resolve) => {
+          transaction.oncomplete = resolve;
+        });
+      }
+
+      for (const line of lines) {
+        const match = line.match(/^(\d{4}-\d{2}-\d{2}):\s*(.+)$/);
+        if (match) {
+          const [, journalDay, entryText] = match;
+          if (entryText.length > 300) continue;
+
+          const existing = await getEntry(journalDay);
+
+          if (strategy === 'keep-existing') {
+            if (!existing) {
+              await addEntry(journalDay, entryText);
+              imported++;
+            } else {
+              skipped++;
+            }
+          } else if (strategy === 'prefer-imported') {
+            await addEntry(journalDay, entryText);
+            if (existing) {
+              overwritten++;
+            }
+            imported++;
+          } else if (strategy === 'overwrite-all') {
+            await addEntry(journalDay, entryText);
+            imported++;
+          }
+        }
+      }
+
+      let message = `Import complete!\nImported: ${imported}`;
+      if (overwritten > 0) message += `\nOverwritten: ${overwritten}`;
+      if (skipped > 0) message += `\nSkipped: ${skipped}`;
+
+      alert(message);
+      loadCurrentEntry();
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+      await openDatabase();
+      loadTheme();
+      await loadCurrentEntry();
+    }
+
+    init();
+  </script>
+</body>
+</html>
