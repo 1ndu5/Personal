@@ -1,18 +1,2386 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0f172a" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Workouts" />
-    <title>Workout Tracker</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Workouts">
+  <title>Workout Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0f172a;
+      color: white;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    input, select, textarea {
+      background-color: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      color: white;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      ring: 2px solid #3b82f6;
+      border-color: transparent;
+      box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Header */
+    header {
+      background-color: #1e293b;
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-content {
+      max-width: 32rem;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .settings-btn {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .settings-btn:hover {
+      background-color: #334155;
+    }
+
+    /* Main Content */
+    main {
+      max-width: 32rem;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* Calendar */
+    .calendar {
+      background-color: #1e293b;
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-nav-btn {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .calendar-nav-btn:hover {
+      background-color: #334155;
+    }
+
+    .calendar-title {
+      text-align: center;
+    }
+
+    .calendar-title h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .calendar-today-btn {
+      font-size: 0.75rem;
+      color: #60a5fa;
+      cursor: pointer;
+    }
+
+    .calendar-today-btn:hover {
+      color: #93c5fd;
+    }
+
+    .calendar-days-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .calendar-day-name {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.25rem;
+    }
+
+    .calendar-day {
+      height: 3.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0.25rem;
+      transition: all 0.2s;
+    }
+
+    .calendar-day:hover {
+      background-color: #1e293b !important;
+    }
+
+    .calendar-day.today {
+      box-shadow: 0 0 0 2px #60a5fa;
+    }
+
+    .calendar-day.selected {
+      background-color: #334155 !important;
+    }
+
+    .calendar-day span {
+      font-size: 0.875rem;
+    }
+
+    .calendar-day.today span {
+      font-weight: bold;
+      color: #60a5fa;
+    }
+
+    .calendar-day-dots {
+      display: flex;
+      gap: 0.125rem;
+      margin-top: 0.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .calendar-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+    }
+
+    .calendar-legend {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .legend-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+    }
+
+    .legend-bg {
+      width: 1rem;
+      height: 0.75rem;
+      border-radius: 0.125rem;
+      border: 1px solid;
+    }
+
+    .legend-item.primary {
+      font-weight: 500;
+      color: white;
+    }
+
+    /* Quick Log Button */
+    .quick-log-btn {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 1rem;
+      background-color: #2563eb;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      font-size: 1.125rem;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .quick-log-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: #0f172a;
+      z-index: 50;
+      overflow: auto;
+    }
+
+    .modal-content {
+      padding: 1rem;
+      max-width: 32rem;
+      margin: 0 auto;
+      padding-bottom: 5rem;
+    }
+
+    /* Modal Header */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close-btn {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background-color: #1e293b;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-save-btn {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .modal-save-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Activity Cards */
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .activity-card {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      border: 1px solid;
+    }
+
+    .activity-card .icon {
+      font-size: 2rem;
+    }
+
+    .activity-card .label {
+      font-weight: 500;
+    }
+
+    /* Workout List */
+    .workout-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .workout-item {
+      background-color: #1e293b;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .workout-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      flex-shrink: 0;
+    }
+
+    .workout-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .workout-label {
+      font-weight: 500;
+    }
+
+    .workout-summary {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .workout-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .workout-action-btn {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .workout-action-btn:hover {
+      background-color: #334155;
+    }
+
+    .workout-action-btn.delete {
+      color: #f87171;
+    }
+
+    .workout-action-btn.edit {
+      color: #94a3b8;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+
+    .intensity-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .intensity-btn {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      text-transform: capitalize;
+      transition: all 0.2s;
+      background-color: #334155;
+    }
+
+    .intensity-btn:hover {
+      background-color: #475569;
+    }
+
+    .intensity-btn.active.easy {
+      background-color: #16a34a;
+    }
+
+    .intensity-btn.active.moderate {
+      background-color: #ca8a04;
+    }
+
+    .intensity-btn.active.hard {
+      background-color: #dc2626;
+    }
+
+    /* Exercise Card */
+    .exercise-card {
+      background-color: #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .exercise-name {
+      font-weight: 500;
+    }
+
+    .exercise-target {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .set-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .set-number {
+      width: 2rem;
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .set-input {
+      width: 5rem;
+      text-align: center;
+    }
+
+    .set-separator {
+      color: #94a3b8;
+    }
+
+    .remove-set-btn {
+      padding: 0.25rem;
+      color: #f87171;
+    }
+
+    .remove-set-btn:hover {
+      color: #fca5a5;
+    }
+
+    .add-set-btn {
+      margin-top: 0.75rem;
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px dashed #475569;
+      border-radius: 0.5rem;
+      color: #94a3b8;
+      transition: all 0.2s;
+    }
+
+    .add-set-btn:hover {
+      border-color: #64748b;
+      color: #cbd5e1;
+    }
+
+    /* Routine List */
+    .routine-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .routine-card {
+      background-color: #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .routine-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .routine-info {
+      flex: 1;
+    }
+
+    .routine-name {
+      font-weight: 500;
+      font-size: 1.125rem;
+    }
+
+    .routine-count {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-top: 0.25rem;
+    }
+
+    .routine-exercises {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .routine-exercise-tag {
+      font-size: 0.75rem;
+      background-color: #334155;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+    }
+
+    .routine-exercise-more {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .routine-actions {
+      display: flex;
+      gap: 0.25rem;
+      margin-left: 0.5rem;
+    }
+
+    /* Move Buttons */
+    .move-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .move-btn {
+      padding: 0.25rem;
+      color: #94a3b8;
+    }
+
+    .move-btn:hover:not(:disabled) {
+      color: white;
+    }
+
+    .move-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Settings */
+    .settings-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .settings-section h3 {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+    }
+
+    .settings-card {
+      background-color: #1e293b;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .settings-item {
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: background-color 0.2s;
+      border-bottom: 1px solid #334155;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item.clickable {
+      cursor: pointer;
+    }
+
+    .settings-item.clickable:hover {
+      background-color: #334155;
+    }
+
+    .settings-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .settings-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .settings-label {
+      font-weight: 500;
+    }
+
+    .settings-description {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .settings-arrow {
+      color: #94a3b8;
+    }
+
+    /* Primary Activity Grid */
+    .primary-activity-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .primary-activity-btn {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: left;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: #334155;
+    }
+
+    .primary-activity-btn:hover {
+      background-color: #475569;
+    }
+
+    .primary-activity-btn.active {
+      background-color: #475569;
+      box-shadow: 0 0 0 2px #60a5fa;
+    }
+
+    .primary-activity-indicator {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .primary-activity-label {
+      font-weight: 500;
+    }
+
+    /* Status Message */
+    .status-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+    }
+
+    .status-message.success {
+      background-color: rgba(22, 163, 74, 0.5);
+      color: #86efac;
+    }
+
+    .status-message.error {
+      background-color: rgba(220, 38, 38, 0.5);
+      color: #fca5a5;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+
+    .empty-state button {
+      padding: 0.75rem 1.5rem;
+      background-color: #2563eb;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .empty-state button:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Spacing utilities */
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+
+    .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+
+    .mb-3 {
+      margin-bottom: 0.75rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Last Workout Summary */
+    .last-workout-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #334155;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .last-workout-btn:hover {
+      background-color: #475569;
+    }
+
+    .last-workout-btn .chevron {
+      transition: transform 0.2s;
+    }
+
+    .last-workout-btn.expanded .chevron {
+      transform: rotate(180deg);
+    }
+
+    .last-workout-summary {
+      background-color: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .last-workout-summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .last-workout-date {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    .last-workout-exercise {
+      margin-bottom: 0.75rem;
+    }
+
+    .last-workout-exercise:last-child {
+      margin-bottom: 0;
+    }
+
+    .last-workout-exercise-name {
+      font-weight: 500;
+      color: #60a5fa;
+      margin-bottom: 0.25rem;
+    }
+
+    .last-workout-sets {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      margin-left: 0.5rem;
+    }
+
+    .last-workout-notes {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #334155;
+      font-style: italic;
+      color: #cbd5e1;
+    }
+
+    .last-workout-notes-label {
+      color: #94a3b8;
+      font-weight: 500;
+      font-style: normal;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Colors */
+    .bg-red-500 { background-color: #ef4444; }
+    .bg-blue-500 { background-color: #3b82f6; }
+    .bg-green-500 { background-color: #22c55e; }
+    .bg-yellow-500 { background-color: #eab308; }
+    .bg-red-500\/25 { background-color: rgba(239, 68, 68, 0.25); }
+    .bg-blue-500\/25 { background-color: rgba(59, 130, 246, 0.25); }
+    .bg-green-500\/25 { background-color: rgba(34, 197, 94, 0.25); }
+    .bg-yellow-500\/25 { background-color: rgba(234, 179, 8, 0.25); }
+    .border-red-500 { border-color: #ef4444; }
+    .border-blue-500 { border-color: #3b82f6; }
+    .border-green-500 { border-color: #22c55e; }
+    .border-yellow-500 { border-color: #eab308; }
+
+    /* SVG icons */
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .w-5 { width: 1.25rem; }
+    .h-5 { height: 1.25rem; }
+    .w-6 { width: 1.5rem; }
+    .h-6 { height: 1.5rem; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <h1 class="header-title">
+        <span>💪</span>
+        Workout Tracker
+      </h1>
+      <button class="settings-btn" onclick="app.openSettings()" title="Settings">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main">
+    <!-- Calendar will be rendered here -->
+  </main>
+
+  <!-- Modals will be rendered here -->
+  <div id="modal-container"></div>
+
+  <script>
+    // UUID generation
+    function uuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // Date utilities
+    const dateUtils = {
+      formatDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      },
+
+      getMonthData(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDay = firstDay.getDay();
+        return { daysInMonth, startingDay };
+      },
+
+      getMonthName(month) {
+        const months = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return months[month];
+      },
+
+      isToday(date) {
+        const today = new Date();
+        const d = new Date(date);
+        return d.getDate() === today.getDate() &&
+          d.getMonth() === today.getMonth() &&
+          d.getFullYear() === today.getFullYear();
+      },
+
+      formatDateLong(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      }
+    };
+
+    // Storage utilities
+    const WORKOUTS_KEY = 'workout-tracker-workouts';
+    const ROUTINES_KEY = 'workout-tracker-routines';
+    const SETTINGS_KEY = 'workout-tracker-settings';
+
+    const storage = {
+      // Workouts
+      getWorkouts() {
+        const data = localStorage.getItem(WORKOUTS_KEY);
+        return data ? JSON.parse(data) : [];
+      },
+
+      saveWorkout(workout) {
+        const workouts = this.getWorkouts();
+        const newWorkout = {
+          ...workout,
+          id: uuid(),
+          createdAt: new Date().toISOString()
+        };
+        workouts.push(newWorkout);
+        localStorage.setItem(WORKOUTS_KEY, JSON.stringify(workouts));
+        return newWorkout;
+      },
+
+      updateWorkout(id, updates) {
+        const workouts = this.getWorkouts();
+        const index = workouts.findIndex(w => w.id === id);
+        if (index !== -1) {
+          workouts[index] = { ...workouts[index], ...updates };
+          localStorage.setItem(WORKOUTS_KEY, JSON.stringify(workouts));
+          return workouts[index];
+        }
+        return null;
+      },
+
+      deleteWorkout(id) {
+        const workouts = this.getWorkouts();
+        const filtered = workouts.filter(w => w.id !== id);
+        localStorage.setItem(WORKOUTS_KEY, JSON.stringify(filtered));
+      },
+
+      getWorkoutsByDate(date) {
+        const workouts = this.getWorkouts();
+        return workouts.filter(w => w.date === date);
+      },
+
+      getWorkoutDates() {
+        const workouts = this.getWorkouts();
+        const dateMap = {};
+        workouts.forEach(w => {
+          if (!dateMap[w.date]) {
+            dateMap[w.date] = new Set();
+          }
+          dateMap[w.date].add(w.type);
+        });
+        Object.keys(dateMap).forEach(date => {
+          dateMap[date] = Array.from(dateMap[date]);
+        });
+        return dateMap;
+      },
+
+      // Routines
+      getRoutines() {
+        const data = localStorage.getItem(ROUTINES_KEY);
+        return data ? JSON.parse(data) : [];
+      },
+
+      saveRoutine(routine) {
+        const routines = this.getRoutines();
+        const newRoutine = {
+          ...routine,
+          id: uuid(),
+          createdAt: new Date().toISOString()
+        };
+        routines.push(newRoutine);
+        localStorage.setItem(ROUTINES_KEY, JSON.stringify(routines));
+        return newRoutine;
+      },
+
+      updateRoutine(id, updates) {
+        const routines = this.getRoutines();
+        const index = routines.findIndex(r => r.id === id);
+        if (index !== -1) {
+          routines[index] = { ...routines[index], ...updates };
+          localStorage.setItem(ROUTINES_KEY, JSON.stringify(routines));
+          return routines[index];
+        }
+        return null;
+      },
+
+      deleteRoutine(id) {
+        const routines = this.getRoutines();
+        const filtered = routines.filter(r => r.id !== id);
+        localStorage.setItem(ROUTINES_KEY, JSON.stringify(filtered));
+      },
+
+      // Settings
+      getSettings() {
+        const data = localStorage.getItem(SETTINGS_KEY);
+        const defaults = { primaryActivity: null };
+        return data ? { ...defaults, ...JSON.parse(data) } : defaults;
+      },
+
+      saveSettings(settings) {
+        const current = this.getSettings();
+        const updated = { ...current, ...settings };
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
+        return updated;
+      }
+    };
+
+    // Constants
+    const ACTIVITY_COLORS = {
+      cardio: 'bg-red-500',
+      weights: 'bg-blue-500',
+      hockey: 'bg-green-500',
+      other: 'bg-yellow-500'
+    };
+
+    const ACTIVITY_BG_COLORS = {
+      cardio: 'bg-red-500/25',
+      weights: 'bg-blue-500/25',
+      hockey: 'bg-green-500/25',
+      other: 'bg-yellow-500/25'
+    };
+
+    const ACTIVITY_LABELS = {
+      cardio: { label: 'Cardio', color: 'bg-red-500', icon: '🏃' },
+      weights: { label: 'Weights', color: 'bg-blue-500', icon: '🏋️' },
+      hockey: { label: 'Hockey', color: 'bg-green-500', icon: '🏒' },
+      other: { label: 'Other', color: 'bg-yellow-500', icon: '📝' }
+    };
+
+    const CARDIO_TYPES = [
+      'Running', 'Cycling', 'Swimming', 'Walking', 'Elliptical',
+      'Rowing', 'Jump Rope', 'Stair Climber', 'Other'
+    ];
+
+    const INTENSITIES = ['easy', 'moderate', 'hard'];
+
+    // Main App
+    const app = {
+      state: {
+        currentMonth: new Date().getMonth(),
+        currentYear: new Date().getFullYear(),
+        selectedDate: null,
+        workoutDates: {},
+        settings: storage.getSettings(),
+        currentModal: null
+      },
+
+      init() {
+        this.refreshWorkoutDates();
+        this.render();
+      },
+
+      refreshWorkoutDates() {
+        this.state.workoutDates = storage.getWorkoutDates();
+      },
+
+      refreshSettings() {
+        this.state.settings = storage.getSettings();
+      },
+
+      render() {
+        this.renderCalendar();
+      },
+
+      renderCalendar() {
+        const { currentMonth, currentYear, workoutDates, settings } = this.state;
+        const { daysInMonth, startingDay } = dateUtils.getMonthData(currentYear, currentMonth);
+        const monthName = dateUtils.getMonthName(currentMonth);
+        const primaryActivity = settings.primaryActivity;
+
+        // Convert Sunday-based to Monday-based
+        const mondayBasedStart = startingDay === 0 ? 6 : startingDay - 1;
+
+        let calendarDays = '';
+
+        // Previous month days
+        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        const prevMonthData = dateUtils.getMonthData(prevYear, prevMonth);
+        const prevMonthDays = prevMonthData.daysInMonth;
+
+        for (let i = mondayBasedStart - 1; i >= 0; i--) {
+          const day = prevMonthDays - i;
+          const dateStr = dateUtils.formatDate(new Date(prevYear, prevMonth, day));
+          const activities = workoutDates[dateStr] || [];
+          const isTodayDate = dateUtils.isToday(new Date(prevYear, prevMonth, day));
+          const isSelected = this.state.selectedDate === dateStr;
+
+          const hasPrimaryActivity = primaryActivity && activities.includes(primaryActivity);
+          const primaryBgColor = hasPrimaryActivity ? ACTIVITY_BG_COLORS[primaryActivity] : '';
+
+          const secondaryActivities = primaryActivity
+            ? activities.filter(type => type !== primaryActivity)
+            : activities;
+
+          let dayClasses = 'calendar-day';
+          if (isTodayDate) dayClasses += ' today';
+          if (isSelected) dayClasses += ' selected';
+
+          let dayStyle = '';
+          if (!isSelected && hasPrimaryActivity) {
+            dayStyle = `background-color: ${primaryBgColor === 'bg-red-500/25' ? 'rgba(239, 68, 68, 0.25)' :
+                                              primaryBgColor === 'bg-blue-500/25' ? 'rgba(59, 130, 246, 0.25)' :
+                                              primaryBgColor === 'bg-green-500/25' ? 'rgba(34, 197, 94, 0.25)' :
+                                              'rgba(234, 179, 8, 0.25)'};`;
+          }
+
+          const dots = secondaryActivities.map(type =>
+            `<div class="calendar-dot ${ACTIVITY_COLORS[type]}"></div>`
+          ).join('');
+
+          calendarDays += `
+            <button class="${dayClasses}" style="${dayStyle}" onclick="app.selectDate('${dateStr}')">
+              <span style="opacity: 0.4;">${day}</span>
+              ${dots ? `<div class="calendar-day-dots">${dots}</div>` : ''}
+            </button>
+          `;
+        }
+
+        // Current month days
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateStr = dateUtils.formatDate(new Date(currentYear, currentMonth, day));
+          const activities = workoutDates[dateStr] || [];
+          const isTodayDate = dateUtils.isToday(new Date(currentYear, currentMonth, day));
+          const isSelected = this.state.selectedDate === dateStr;
+
+          const hasPrimaryActivity = primaryActivity && activities.includes(primaryActivity);
+          const primaryBgColor = hasPrimaryActivity ? ACTIVITY_BG_COLORS[primaryActivity] : '';
+
+          const secondaryActivities = primaryActivity
+            ? activities.filter(type => type !== primaryActivity)
+            : activities;
+
+          let dayClasses = 'calendar-day';
+          if (isTodayDate) dayClasses += ' today';
+          if (isSelected) dayClasses += ' selected';
+
+          let dayStyle = '';
+          if (!isSelected && hasPrimaryActivity) {
+            dayStyle = `background-color: ${primaryBgColor === 'bg-red-500/25' ? 'rgba(239, 68, 68, 0.25)' :
+                                              primaryBgColor === 'bg-blue-500/25' ? 'rgba(59, 130, 246, 0.25)' :
+                                              primaryBgColor === 'bg-green-500/25' ? 'rgba(34, 197, 94, 0.25)' :
+                                              'rgba(234, 179, 8, 0.25)'};`;
+          }
+
+          const dots = secondaryActivities.map(type =>
+            `<div class="calendar-dot ${ACTIVITY_COLORS[type]}"></div>`
+          ).join('');
+
+          calendarDays += `
+            <button class="${dayClasses}" style="${dayStyle}" onclick="app.selectDate('${dateStr}')">
+              <span>${day}</span>
+              ${dots ? `<div class="calendar-day-dots">${dots}</div>` : ''}
+            </button>
+          `;
+        }
+
+        // Next month days to complete the grid
+        const totalDaysShown = mondayBasedStart + daysInMonth;
+        const remainingDays = totalDaysShown % 7 === 0 ? 0 : 7 - (totalDaysShown % 7);
+        const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+        const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+
+        for (let day = 1; day <= remainingDays; day++) {
+          const dateStr = dateUtils.formatDate(new Date(nextYear, nextMonth, day));
+          const activities = workoutDates[dateStr] || [];
+          const isTodayDate = dateUtils.isToday(new Date(nextYear, nextMonth, day));
+          const isSelected = this.state.selectedDate === dateStr;
+
+          const hasPrimaryActivity = primaryActivity && activities.includes(primaryActivity);
+          const primaryBgColor = hasPrimaryActivity ? ACTIVITY_BG_COLORS[primaryActivity] : '';
+
+          const secondaryActivities = primaryActivity
+            ? activities.filter(type => type !== primaryActivity)
+            : activities;
+
+          let dayClasses = 'calendar-day';
+          if (isTodayDate) dayClasses += ' today';
+          if (isSelected) dayClasses += ' selected';
+
+          let dayStyle = '';
+          if (!isSelected && hasPrimaryActivity) {
+            dayStyle = `background-color: ${primaryBgColor === 'bg-red-500/25' ? 'rgba(239, 68, 68, 0.25)' :
+                                              primaryBgColor === 'bg-blue-500/25' ? 'rgba(59, 130, 246, 0.25)' :
+                                              primaryBgColor === 'bg-green-500/25' ? 'rgba(34, 197, 94, 0.25)' :
+                                              'rgba(234, 179, 8, 0.25)'};`;
+          }
+
+          const dots = secondaryActivities.map(type =>
+            `<div class="calendar-dot ${ACTIVITY_COLORS[type]}"></div>`
+          ).join('');
+
+          calendarDays += `
+            <button class="${dayClasses}" style="${dayStyle}" onclick="app.selectDate('${dateStr}')">
+              <span style="opacity: 0.4;">${day}</span>
+              ${dots ? `<div class="calendar-day-dots">${dots}</div>` : ''}
+            </button>
+          `;
+        }
+
+        // Legend
+        const legend = ['cardio', 'weights', 'hockey', 'other'].map(type => {
+          const isPrimary = primaryActivity === type;
+          return `
+            <div class="legend-item ${isPrimary ? 'primary' : ''}">
+              ${isPrimary
+                ? `<div class="legend-bg ${ACTIVITY_BG_COLORS[type]} border-${type === 'cardio' ? 'red' : type === 'weights' ? 'blue' : type === 'hockey' ? 'green' : 'yellow'}-500"></div>`
+                : `<div class="legend-dot ${ACTIVITY_COLORS[type]}"></div>`
+              }
+              <span>${type.charAt(0).toUpperCase() + type.slice(1)}</span>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('main').innerHTML = `
+          <div class="calendar">
+            <div class="calendar-header">
+              <button class="calendar-nav-btn" onclick="app.prevMonth()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div class="calendar-title">
+                <h2>${monthName} ${currentYear}</h2>
+                <button class="calendar-today-btn" onclick="app.goToToday()">Today</button>
+              </div>
+              <button class="calendar-nav-btn" onclick="app.nextMonth()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="calendar-days-header">
+              <div class="calendar-day-name">Mon</div>
+              <div class="calendar-day-name">Tue</div>
+              <div class="calendar-day-name">Wed</div>
+              <div class="calendar-day-name">Thu</div>
+              <div class="calendar-day-name">Fri</div>
+              <div class="calendar-day-name">Sat</div>
+              <div class="calendar-day-name">Sun</div>
+            </div>
+
+            <div class="calendar-grid">
+              ${calendarDays}
+            </div>
+
+            <div class="calendar-legend">
+              ${legend}
+            </div>
+          </div>
+
+          <button class="quick-log-btn" onclick="app.logToday()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Log Today's Workout
+          </button>
+        `;
+      },
+
+      prevMonth() {
+        if (this.state.currentMonth === 0) {
+          this.state.currentMonth = 11;
+          this.state.currentYear--;
+        } else {
+          this.state.currentMonth--;
+        }
+        this.render();
+      },
+
+      nextMonth() {
+        if (this.state.currentMonth === 11) {
+          this.state.currentMonth = 0;
+          this.state.currentYear++;
+        } else {
+          this.state.currentMonth++;
+        }
+        this.render();
+      },
+
+      goToToday() {
+        const today = new Date();
+        this.state.currentMonth = today.getMonth();
+        this.state.currentYear = today.getFullYear();
+        this.render();
+      },
+
+      logToday() {
+        this.selectDate(dateUtils.formatDate(new Date()));
+      },
+
+      selectDate(date) {
+        this.state.selectedDate = date;
+        this.render();
+        this.openDayDetail(date);
+      },
+
+      closeModal() {
+        this.state.currentModal = null;
+        document.getElementById('modal-container').innerHTML = '';
+        this.refreshWorkoutDates();
+        this.refreshSettings();
+        this.render();
+      },
+
+      // Day Detail Modal
+      openDayDetail(date) {
+        this.state.currentModal = 'dayDetail';
+        this.renderDayDetail(date);
+      },
+
+      renderDayDetail(date) {
+        const workouts = storage.getWorkoutsByDate(date);
+
+        const workoutItems = workouts.map(workout => {
+          const config = ACTIVITY_LABELS[workout.type];
+          const summary = this.formatWorkoutSummary(workout);
+          return `
+            <div class="workout-item">
+              <div class="workout-icon ${config.color}">${config.icon}</div>
+              <div class="workout-details">
+                <div class="workout-label">${config.label}</div>
+                <div class="workout-summary">${summary}</div>
+              </div>
+              <div class="workout-actions">
+                <button class="workout-action-btn edit" onclick="app.editWorkout('${workout.id}')">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="workout-action-btn delete" onclick="app.deleteWorkout('${workout.id}')">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const activityCards = Object.entries(ACTIVITY_LABELS).map(([type, config]) => {
+          const borderColor = type === 'cardio' ? 'border-red-500' :
+                              type === 'weights' ? 'border-blue-500' :
+                              type === 'hockey' ? 'border-green-500' : 'border-yellow-500';
+          return `
+            <button class="activity-card ${config.color}" style="background-color: rgba(${
+              type === 'cardio' ? '239, 68, 68' :
+              type === 'weights' ? '59, 130, 246' :
+              type === 'hockey' ? '34, 197, 94' : '234, 179, 8'
+            }, 0.2); border-color: ${
+              type === 'cardio' ? '#ef4444' :
+              type === 'weights' ? '#3b82f6' :
+              type === 'hockey' ? '#22c55e' : '#eab308'
+            };" onclick="app.addWorkout('${date}', '${type}')">
+              <span class="icon">${config.icon}</span>
+              <span class="label">${config.label}</span>
+            </button>
+          `;
+        }).join('');
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button class="modal-close-btn" onclick="app.closeModal()">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">${dateUtils.formatDateLong(date)}</h2>
+                <div style="width: 2.5rem;"></div>
+              </div>
+
+              ${workouts.length > 0 ? `
+                <div class="mb-6">
+                  <h3 class="form-label mb-3">Logged Activities</h3>
+                  <div class="workout-list">
+                    ${workoutItems}
+                  </div>
+                </div>
+              ` : ''}
+
+              <div>
+                <h3 class="form-label mb-3">
+                  ${workouts.length > 0 ? 'Add Another Activity' : 'Log an Activity'}
+                </h3>
+                <div class="activity-grid">
+                  ${activityCards}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      formatWorkoutSummary(workout) {
+        const { type, data } = workout;
+        switch (type) {
+          case 'cardio':
+            return `${data.activityType} - ${data.duration} min (${data.intensity})`;
+          case 'weights':
+            const totalSets = data.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+            return `${data.routineName} - ${totalSets} sets`;
+          case 'hockey':
+          case 'other':
+            return data.description.substring(0, 50) + (data.description.length > 50 ? '...' : '');
+          default:
+            return '';
+        }
+      },
+
+      addWorkout(date, type) {
+        if (type === 'cardio') {
+          this.openCardioForm(date, null);
+        } else if (type === 'weights') {
+          this.openWeightsForm(date, null);
+        } else {
+          this.openFreeTextForm(date, type, null);
+        }
+      },
+
+      editWorkout(id) {
+        const workouts = storage.getWorkouts();
+        const workout = workouts.find(w => w.id === id);
+        if (!workout) return;
+
+        if (workout.type === 'cardio') {
+          this.openCardioForm(workout.date, workout);
+        } else if (workout.type === 'weights') {
+          this.openWeightsForm(workout.date, workout);
+        } else {
+          this.openFreeTextForm(workout.date, workout.type, workout);
+        }
+      },
+
+      deleteWorkout(id) {
+        if (confirm('Delete this workout?')) {
+          storage.deleteWorkout(id);
+          this.renderDayDetail(this.state.selectedDate);
+        }
+      },
+
+      // Cardio Form
+      openCardioForm(date, workout) {
+        const activityType = workout?.data?.activityType || CARDIO_TYPES[0];
+        const duration = workout?.data?.duration || '';
+        const intensity = workout?.data?.intensity || 'moderate';
+
+        const options = CARDIO_TYPES.map(type =>
+          `<option value="${type}" ${type === activityType ? 'selected' : ''}>${type}</option>`
+        ).join('');
+
+        const intensityButtons = INTENSITIES.map(level => `
+          <button type="button" class="intensity-btn ${intensity === level ? 'active ' + level : ''}"
+                  onclick="app.setCardioIntensity('${level}')">
+            ${level}
+          </button>
+        `).join('');
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <form class="modal-content" onsubmit="app.saveCardio(event, '${date}', ${workout ? `'${workout.id}'` : 'null'})">
+              <div class="modal-header">
+                <button type="button" class="modal-close-btn" onclick="app.openDayDetail('${date}')">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">
+                  <span style="font-size: 1.25rem;">🏃</span>
+                  ${workout ? 'Edit Cardio' : 'Log Cardio'}
+                </h2>
+                <button type="submit" class="modal-save-btn">Save</button>
+              </div>
+
+              <div class="space-y-6">
+                <div class="form-group">
+                  <label class="form-label">Activity Type</label>
+                  <select id="cardio-activity" required>${options}</select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Duration (minutes)</label>
+                  <input type="number" id="cardio-duration" value="${duration}" placeholder="30" min="1" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Intensity</label>
+                  <div class="intensity-buttons" id="cardio-intensity">
+                    ${intensityButtons}
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        `;
+
+        this.cardioFormState = { intensity };
+      },
+
+      setCardioIntensity(level) {
+        this.cardioFormState.intensity = level;
+        const buttons = document.querySelectorAll('#cardio-intensity .intensity-btn');
+        buttons.forEach(btn => {
+          btn.className = 'intensity-btn';
+          if (btn.textContent.trim() === level) {
+            btn.className = 'intensity-btn active ' + level;
+          }
+        });
+      },
+
+      saveCardio(event, date, workoutId) {
+        event.preventDefault();
+        const activityType = document.getElementById('cardio-activity').value;
+        const duration = parseInt(document.getElementById('cardio-duration').value);
+        const intensity = this.cardioFormState.intensity;
+
+        const data = { activityType, duration, intensity };
+
+        if (workoutId) {
+          storage.updateWorkout(workoutId, { data });
+        } else {
+          storage.saveWorkout({ date, type: 'cardio', data });
+        }
+
+        this.openDayDetail(date);
+      },
+
+      // Free Text Form
+      openFreeTextForm(date, type, workout) {
+        const config = type === 'hockey'
+          ? { label: 'Hockey', icon: '🏒', placeholder: 'Describe your hockey session...' }
+          : { label: 'Other', icon: '📝', placeholder: 'Describe your activity...' };
+
+        const description = workout?.data?.description || '';
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <form class="modal-content" onsubmit="app.saveFreeText(event, '${date}', '${type}', ${workout ? `'${workout.id}'` : 'null'})">
+              <div class="modal-header">
+                <button type="button" class="modal-close-btn" onclick="app.openDayDetail('${date}')">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">
+                  <span style="font-size: 1.25rem;">${config.icon}</span>
+                  ${workout ? `Edit ${config.label}` : `Log ${config.label}`}
+                </h2>
+                <button type="submit" class="modal-save-btn">Save</button>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="freetext-description" rows="6" placeholder="${config.placeholder}" required>${description}</textarea>
+              </div>
+            </form>
+          </div>
+        `;
+      },
+
+      saveFreeText(event, date, type, workoutId) {
+        event.preventDefault();
+        const description = document.getElementById('freetext-description').value.trim();
+
+        if (!description) {
+          alert('Please enter a description');
+          return;
+        }
+
+        const data = { description };
+
+        if (workoutId) {
+          storage.updateWorkout(workoutId, { data });
+        } else {
+          storage.saveWorkout({ date, type, data });
+        }
+
+        this.openDayDetail(date);
+      },
+
+      // Weights Form
+      openWeightsForm(date, workout) {
+        this.weightsFormState = {
+          date,
+          workout,
+          routines: storage.getRoutines(),
+          selectedRoutineId: workout?.data?.routineId || '',
+          exercises: workout?.data?.exercises || [],
+          notes: workout?.data?.notes || ''
+        };
+        this.renderWeightsForm();
+      },
+
+      renderWeightsForm() {
+        const { date, workout, routines, selectedRoutineId, exercises, notes } = this.weightsFormState;
+        const selectedRoutine = routines.find(r => r.id === selectedRoutineId);
+
+        let content = '';
+
+        if (routines.length === 0) {
+          content = `
+            <div class="settings-card">
+              <div class="empty-state">
+                <div class="empty-state-icon">🏋️</div>
+                <h3>No Routines Yet</h3>
+                <p>Create your first workout routine to get started</p>
+                <button onclick="app.openRoutineManager()">Create Your First Routine</button>
+              </div>
+            </div>
+          `;
+        } else {
+          const routineOptions = routines.map(r =>
+            `<option value="${r.id}" ${r.id === selectedRoutineId ? 'selected' : ''}>
+              ${r.name} (${r.exercises.length} exercises)
+            </option>`
+          ).join('');
+
+          // Find last workout for this routine
+          let lastWorkoutSummary = '';
+          if (selectedRoutine && !workout) {
+            const allWorkouts = storage.getWorkouts();
+            const lastWorkout = allWorkouts
+              .filter(w => w.type === 'weights' && w.data.routineId === selectedRoutineId && w.date !== date)
+              .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+            if (lastWorkout) {
+              const formattedDate = dateUtils.formatDateLong(lastWorkout.date);
+              const exerciseSummaries = lastWorkout.data.exercises.map(ex => {
+                const setsText = ex.sets.map(s => `${s.weight}kg × ${s.reps}`).join(', ');
+                return `
+                  <div class="last-workout-exercise">
+                    <div class="last-workout-exercise-name">${ex.name}</div>
+                    <div class="last-workout-sets">${setsText}</div>
+                  </div>
+                `;
+              }).join('');
+
+              const notesSection = lastWorkout.data.notes ? `
+                <div class="last-workout-notes">
+                  <div class="last-workout-notes-label">Notes:</div>
+                  ${lastWorkout.data.notes}
+                </div>
+              ` : '';
+
+              lastWorkoutSummary = `
+                <button type="button" class="last-workout-btn" id="last-workout-toggle" onclick="app.toggleLastWorkout()">
+                  <span>📊 Last Workout: ${formattedDate.split(',')[0]}</span>
+                  <svg class="chevron" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div id="last-workout-details" class="last-workout-summary hidden">
+                  <div class="last-workout-summary-header">
+                    <strong>${selectedRoutine.name}</strong>
+                    <span class="last-workout-date">${formattedDate}</span>
+                  </div>
+                  ${exerciseSummaries}
+                  ${notesSection}
+                </div>
+              `;
+            }
+          }
+
+          let exerciseCards = '';
+          if (selectedRoutine) {
+            exerciseCards = exercises.map((exercise, exIndex) => {
+              const sets = exercise.sets.map((set, setIndex) => `
+                <div class="set-row">
+                  <span class="set-number">${setIndex + 1}.</span>
+                  <input type="number" class="set-input" placeholder="kg"
+                         value="${set.weight}"
+                         oninput="app.updateWeightsSet(${exIndex}, ${setIndex}, 'weight', this.value)">
+                  <span class="set-separator">x</span>
+                  <input type="number" class="set-input" placeholder="reps"
+                         value="${set.reps}"
+                         oninput="app.updateWeightsSet(${exIndex}, ${setIndex}, 'reps', this.value)">
+                  <button type="button" class="remove-set-btn" onclick="app.removeWeightsSet(${exIndex}, ${setIndex})">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              `).join('');
+
+              return `
+                <div class="exercise-card">
+                  <div class="exercise-header">
+                    <h4 class="exercise-name">${exercise.name}</h4>
+                    <span class="exercise-target">Target: ${exercise.targetSets} sets</span>
+                  </div>
+                  <div>${sets}</div>
+                  <button type="button" class="add-set-btn" onclick="app.addWeightsSet(${exIndex})">
+                    + Add Set
+                  </button>
+                </div>
+              `;
+            }).join('');
+          }
+
+          content = `
+            <div class="form-group">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <label class="form-label" style="margin-bottom: 0;">Select Routine</label>
+                <button type="button" style="font-size: 0.875rem; color: #60a5fa;"
+                        onclick="app.openRoutineManager()">
+                  Manage Routines
+                </button>
+              </div>
+              <select id="weights-routine" onchange="app.selectWeightsRoutine(this.value)">
+                <option value="">Choose a routine...</option>
+                ${routineOptions}
+              </select>
+            </div>
+
+            ${selectedRoutine ? `
+              ${lastWorkoutSummary}
+
+              <div class="form-group">
+                <h3 class="form-label mb-3">Log Your Sets</h3>
+                ${exerciseCards}
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <textarea id="weights-notes" rows="3" placeholder="How did the workout feel?">${notes}</textarea>
+              </div>
+            ` : ''}
+          `;
+        }
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <form class="modal-content" onsubmit="app.saveWeights(event)">
+              <div class="modal-header">
+                <button type="button" class="modal-close-btn" onclick="app.openDayDetail('${date}')">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">
+                  <span style="font-size: 1.25rem;">🏋️</span>
+                  ${workout ? 'Edit Weights' : 'Log Weights'}
+                </h2>
+                <button type="submit" class="modal-save-btn">Save</button>
+              </div>
+              ${content}
+            </form>
+          </div>
+        `;
+      },
+
+      selectWeightsRoutine(routineId) {
+        this.weightsFormState.selectedRoutineId = routineId;
+        const routine = this.weightsFormState.routines.find(r => r.id === routineId);
+
+        if (routine) {
+          this.weightsFormState.exercises = routine.exercises.map(ex => {
+            const existingEx = this.weightsFormState.workout?.data?.exercises?.find(e => e.name === ex.name);
+            return {
+              name: ex.name,
+              targetSets: ex.targetSets,
+              sets: existingEx?.sets || []
+            };
+          });
+        } else {
+          this.weightsFormState.exercises = [];
+        }
+
+        this.renderWeightsForm();
+      },
+
+      addWeightsSet(exerciseIndex) {
+        const exercise = this.weightsFormState.exercises[exerciseIndex];
+        const lastSet = exercise.sets[exercise.sets.length - 1];
+        exercise.sets.push({
+          weight: lastSet?.weight || '',
+          reps: lastSet?.reps || ''
+        });
+        this.renderWeightsForm();
+      },
+
+      updateWeightsSet(exerciseIndex, setIndex, field, value) {
+        this.weightsFormState.exercises[exerciseIndex].sets[setIndex][field] = value;
+      },
+
+      removeWeightsSet(exerciseIndex, setIndex) {
+        this.weightsFormState.exercises[exerciseIndex].sets.splice(setIndex, 1);
+        this.renderWeightsForm();
+      },
+
+      toggleLastWorkout() {
+        const btn = document.getElementById('last-workout-toggle');
+        const details = document.getElementById('last-workout-details');
+        if (btn && details) {
+          btn.classList.toggle('expanded');
+          details.classList.toggle('hidden');
+        }
+      },
+
+      saveWeights(event) {
+        event.preventDefault();
+        const { date, workout, selectedRoutineId, exercises } = this.weightsFormState;
+
+        if (!selectedRoutineId) {
+          alert('Please select a routine');
+          return;
+        }
+
+        const routine = this.weightsFormState.routines.find(r => r.id === selectedRoutineId);
+        const notes = document.getElementById('weights-notes')?.value || '';
+
+        const data = {
+          routineId: selectedRoutineId,
+          routineName: routine.name,
+          exercises: exercises.map(ex => ({
+            ...ex,
+            sets: ex.sets.filter(s => s.weight && s.reps).map(s => ({
+              weight: parseFloat(s.weight),
+              reps: parseInt(s.reps)
+            }))
+          })),
+          notes
+        };
+
+        if (workout) {
+          storage.updateWorkout(workout.id, { data });
+        } else {
+          storage.saveWorkout({ date, type: 'weights', data });
+        }
+
+        this.openDayDetail(date);
+      },
+
+      // Routine Manager
+      openRoutineManager(embedded = false) {
+        this.routineManagerState = {
+          routines: storage.getRoutines(),
+          embedded
+        };
+        this.renderRoutineManager();
+      },
+
+      renderRoutineManager() {
+        const { routines, embedded } = this.routineManagerState;
+
+        let content;
+        if (routines.length === 0) {
+          content = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🏋️</div>
+              <h3>No Routines Yet</h3>
+              <p>Create your first workout routine to get started</p>
+              <button onclick="app.openRoutineForm(null)">Create Routine</button>
+            </div>
+          `;
+        } else {
+          const routineCards = routines.map(routine => {
+            const exerciseTags = routine.exercises.slice(0, 4).map(ex =>
+              `<span class="routine-exercise-tag">${ex.name} (${ex.targetSets}x)</span>`
+            ).join('');
+            const moreTag = routine.exercises.length > 4
+              ? `<span class="routine-exercise-more">+${routine.exercises.length - 4} more</span>`
+              : '';
+
+            return `
+              <div class="routine-card">
+                <div class="routine-header">
+                  <div class="routine-info">
+                    <h3 class="routine-name">${routine.name}</h3>
+                    <p class="routine-count">${routine.exercises.length} exercise${routine.exercises.length !== 1 ? 's' : ''}</p>
+                    <div class="routine-exercises">
+                      ${exerciseTags}
+                      ${moreTag}
+                    </div>
+                  </div>
+                  <div class="routine-actions">
+                    <button class="workout-action-btn edit" onclick="app.openRoutineForm('${routine.id}')">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button class="workout-action-btn delete" onclick="app.deleteRoutine('${routine.id}')">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          content = `
+            <div class="routine-list">
+              ${routineCards}
+            </div>
+          `;
+        }
+
+        const backAction = embedded
+          ? 'app.openSettings()'
+          : this.weightsFormState
+            ? `app.openWeightsForm('${this.weightsFormState.date}', ${this.weightsFormState.workout ? 'app.weightsFormState.workout' : 'null'})`
+            : 'app.closeModal()';
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button class="modal-close-btn" onclick="${backAction}">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">Manage Routines</h2>
+                <button class="modal-save-btn" style="padding: 0.5rem; background-color: #2563eb;" onclick="app.openRoutineForm(null)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
+              ${content}
+            </div>
+          </div>
+        `;
+      },
+
+      deleteRoutine(id) {
+        if (confirm('Delete this routine? This will not affect logged workouts.')) {
+          storage.deleteRoutine(id);
+          this.routineManagerState.routines = storage.getRoutines();
+          this.renderRoutineManager();
+        }
+      },
+
+      // Routine Form
+      openRoutineForm(routineId) {
+        const routine = routineId ? storage.getRoutines().find(r => r.id === routineId) : null;
+        this.routineFormState = {
+          routineId,
+          name: routine?.name || '',
+          exercises: routine?.exercises || [{ name: '', targetSets: 3 }]
+        };
+        this.renderRoutineForm();
+      },
+
+      renderRoutineForm() {
+        const { routineId, name, exercises } = this.routineFormState;
+
+        const exerciseFields = exercises.map((ex, index) => `
+          <div class="exercise-card">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <div class="move-buttons">
+                <button type="button" class="move-btn"
+                        ${index === 0 ? 'disabled' : ''}
+                        onclick="app.moveRoutineExercise(${index}, -1)">
+                  <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+                <button type="button" class="move-btn"
+                        ${index === exercises.length - 1 ? 'disabled' : ''}
+                        onclick="app.moveRoutineExercise(${index}, 1)">
+                  <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              <input type="text" placeholder="Exercise name" value="${ex.name}"
+                     style="flex: 1;"
+                     oninput="app.updateRoutineExercise(${index}, 'name', this.value)">
+              <button type="button" class="workout-action-btn delete"
+                      ${exercises.length === 1 ? 'disabled style="opacity: 0.3;"' : ''}
+                      onclick="app.removeRoutineExercise(${index})">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: 2rem;">
+              <label style="font-size: 0.875rem; color: #94a3b8;">Target Sets:</label>
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <button type="button" onclick="app.updateRoutineExercise(${index}, 'targetSets', ${Math.max(1, ex.targetSets - 1)})"
+                        style="width: 2rem; height: 2rem; background-color: #334155; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                  -
+                </button>
+                <span style="width: 2rem; text-align: center;">${ex.targetSets}</span>
+                <button type="button" onclick="app.updateRoutineExercise(${index}, 'targetSets', ${ex.targetSets + 1})"
+                        style="width: 2rem; height: 2rem; background-color: #334155; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <form class="modal-content" onsubmit="app.saveRoutine(event)">
+              <div class="modal-header">
+                <button type="button" class="modal-close-btn" onclick="app.openRoutineManager()">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">${routineId ? 'Edit Routine' : 'New Routine'}</h2>
+                <button type="submit" class="modal-save-btn">Save</button>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Routine Name</label>
+                <input type="text" id="routine-name" value="${name}"
+                       placeholder="e.g., Push Day, Leg Day, Full Body" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Exercises</label>
+                <div class="space-y-4">
+                  ${exerciseFields}
+                </div>
+                <button type="button" class="add-set-btn" onclick="app.addRoutineExercise()">
+                  + Add Exercise
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+      },
+
+      updateRoutineExercise(index, field, value) {
+        this.routineFormState.exercises[index][field] = value;
+        if (field === 'targetSets') {
+          this.renderRoutineForm();
+        }
+      },
+
+      removeRoutineExercise(index) {
+        if (this.routineFormState.exercises.length > 1) {
+          this.routineFormState.exercises.splice(index, 1);
+          this.renderRoutineForm();
+        }
+      },
+
+      addRoutineExercise() {
+        this.routineFormState.exercises.push({ name: '', targetSets: 3 });
+        this.renderRoutineForm();
+      },
+
+      moveRoutineExercise(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= this.routineFormState.exercises.length) return;
+        const exercises = this.routineFormState.exercises;
+        [exercises[index], exercises[newIndex]] = [exercises[newIndex], exercises[index]];
+        this.renderRoutineForm();
+      },
+
+      saveRoutine(event) {
+        event.preventDefault();
+        const name = document.getElementById('routine-name').value.trim();
+
+        if (!name) {
+          alert('Please enter a routine name');
+          return;
+        }
+
+        const validExercises = this.routineFormState.exercises.filter(ex => ex.name.trim());
+        if (validExercises.length === 0) {
+          alert('Please add at least one exercise');
+          return;
+        }
+
+        const routineData = {
+          name,
+          exercises: validExercises.map(ex => ({
+            name: ex.name.trim(),
+            targetSets: ex.targetSets
+          }))
+        };
+
+        if (this.routineFormState.routineId) {
+          storage.updateRoutine(this.routineFormState.routineId, routineData);
+        } else {
+          storage.saveRoutine(routineData);
+        }
+
+        this.openRoutineManager();
+      },
+
+      // Settings
+      openSettings() {
+        this.settingsState = {
+          settings: storage.getSettings(),
+          importStatus: null
+        };
+        this.renderSettings();
+      },
+
+      renderSettings() {
+        const { settings, importStatus } = this.settingsState;
+        const workoutCount = storage.getWorkouts().length;
+        const routineCount = storage.getRoutines().length;
+
+        const statusMessage = importStatus ? `
+          <div class="status-message ${importStatus.type}">
+            ${importStatus.message}
+          </div>
+        ` : '';
+
+        const activityOptions = [
+          { value: null, label: 'None' },
+          { value: 'cardio', label: 'Cardio', color: 'bg-red-500' },
+          { value: 'weights', label: 'Weights', color: 'bg-blue-500' },
+          { value: 'hockey', label: 'Hockey', color: 'bg-green-500' },
+          { value: 'other', label: 'Other', color: 'bg-yellow-500' }
+        ];
+
+        const activityButtons = activityOptions.map(option => {
+          const isActive = settings.primaryActivity === option.value;
+          return `
+            <button type="button"
+                    class="primary-activity-btn ${isActive ? 'active' : ''}"
+                    onclick="app.setPrimaryActivity(${option.value ? `'${option.value}'` : 'null'})">
+              ${option.color ? `<div class="primary-activity-indicator ${option.color}"></div>` : ''}
+              <span class="primary-activity-label">${option.label}</span>
+            </button>
+          `;
+        }).join('');
+
+        document.getElementById('modal-container').innerHTML = `
+          <div class="modal-overlay">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button class="modal-close-btn" onclick="app.closeModal()">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h2 class="modal-title">Settings</h2>
+                <div style="width: 2.5rem;"></div>
+              </div>
+
+              ${statusMessage}
+
+              <div class="settings-section">
+                <h3>Weight Routines</h3>
+                <div class="settings-card">
+                  <button class="settings-item clickable" onclick="app.openRoutineManager(true)">
+                    <div class="settings-icon" style="background-color: #2563eb;">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                    <div class="settings-info">
+                      <div class="settings-label">Manage Routines</div>
+                      <div class="settings-description">${routineCount} routine${routineCount !== 1 ? 's' : ''}</div>
+                    </div>
+                    <svg class="settings-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Calendar Display</h3>
+                <div class="settings-card" style="padding: 1rem;">
+                  <div style="margin-bottom: 0.75rem;">
+                    <div class="settings-label">Primary Activity</div>
+                    <div class="settings-description">
+                      Days with this activity will have a colored background
+                    </div>
+                  </div>
+                  <div class="primary-activity-grid">
+                    ${activityButtons}
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Data Management</h3>
+                <div class="settings-card">
+                  <div class="settings-item" style="border-bottom: 1px solid #334155;">
+                    <div class="settings-info">
+                      <div class="settings-description">Current Data</div>
+                      <div class="settings-label">${workoutCount} workout${workoutCount !== 1 ? 's' : ''} logged</div>
+                    </div>
+                  </div>
+
+                  <button class="settings-item clickable" onclick="app.exportData()">
+                    <svg style="width: 1.25rem; height: 1.25rem; color: #22c55e;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <div class="settings-info">
+                      <div class="settings-label">Export Data</div>
+                      <div class="settings-description">Download all workouts and routines as JSON</div>
+                    </div>
+                  </button>
+
+                  <label class="settings-item clickable">
+                    <svg style="width: 1.25rem; height: 1.25rem; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <div class="settings-info">
+                      <div class="settings-label">Import Data</div>
+                      <div class="settings-description">Restore from a backup file</div>
+                    </div>
+                    <input type="file" accept=".json" onchange="app.importData(event)" style="display: none;">
+                  </label>
+
+                  <button class="settings-item clickable" onclick="app.clearData()">
+                    <svg style="width: 1.25rem; height: 1.25rem; color: #f87171;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <div class="settings-info">
+                      <div class="settings-label" style="color: #f87171;">Clear All Data</div>
+                      <div class="settings-description">Delete all workouts and routines</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h3>About</h3>
+                <div class="settings-card">
+                  <div class="settings-item" style="text-align: center; display: block;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💪</div>
+                    <div class="settings-label">Workout Tracker</div>
+                    <div class="settings-description">Version 1.0.0</div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">
+                      Data stored locally on your device
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      setPrimaryActivity(value) {
+        storage.saveSettings({ primaryActivity: value });
+        this.settingsState.settings = storage.getSettings();
+        this.renderSettings();
+      },
+
+      exportData() {
+        const data = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          workouts: storage.getWorkouts(),
+          routines: storage.getRoutines()
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `workout-data-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+
+      importData(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+
+            if (!data.workouts || !data.routines) {
+              throw new Error('Invalid file format');
+            }
+
+            if (confirm('This will replace all your current data. Are you sure?')) {
+              localStorage.setItem(WORKOUTS_KEY, JSON.stringify(data.workouts));
+              localStorage.setItem(ROUTINES_KEY, JSON.stringify(data.routines));
+              this.settingsState.importStatus = { type: 'success', message: 'Data imported successfully!' };
+              this.renderSettings();
+            }
+          } catch (err) {
+            this.settingsState.importStatus = { type: 'error', message: 'Failed to import: Invalid file format' };
+            this.renderSettings();
+          }
+        };
+        reader.readAsText(file);
+
+        event.target.value = '';
+      },
+
+      clearData() {
+        if (confirm('This will delete ALL your workout data and routines. This cannot be undone. Are you sure?')) {
+          if (confirm('Are you REALLY sure? All data will be lost.')) {
+            localStorage.removeItem(WORKOUTS_KEY);
+            localStorage.removeItem(ROUTINES_KEY);
+            this.settingsState.importStatus = { type: 'success', message: 'All data cleared' };
+            this.renderSettings();
+          }
+        }
+      }
+    };
+
+    // Initialize app
+    app.init();
+  </script>
+</body>
 </html>

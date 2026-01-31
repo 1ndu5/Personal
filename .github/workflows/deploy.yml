@@ -17,18 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Build Workout Tracker
-        run: |
-          cd workout-tracker
-          npm ci
-          npm run build
-          cd ..
-
       - name: Prepare deployment folder
         run: |
           mkdir -p _site
@@ -37,7 +25,7 @@ jobs:
           mkdir -p _site/daily-memory-journal
           cp -r daily-memory-journal/* _site/daily-memory-journal/
           mkdir -p _site/workout-tracker
-          cp -r workout-tracker/dist/* _site/workout-tracker/
+          cp -r workout-tracker/* _site/workout-tracker/
           echo "=== Deployment folder structure ==="
           ls -la _site/
           echo "=== Journal app files ==="
